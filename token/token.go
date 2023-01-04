@@ -10,8 +10,17 @@ const (
 	INT   = "INT"
 
 	// Operators
-	ASSIGN = "="
-	PLUS   = "+"
+	ASSIGN   = "="
+	PLUS     = "+"
+	MNIUS    = "-"
+	BANG     = "!"
+	SLASH    = "/"
+	ASTERISK = "*"
+
+	LT    = "<"
+	GT    = ">"
+	EQ    = "=="
+	NOTEQ = "!="
 
 	// Delimiters
 	COMMA     = ","
@@ -25,6 +34,11 @@ const (
 	// Keywords
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
+	TRUE     = "TRUE"
+	FALSE    = "FALSE"
+	IF       = "IF"
+	ELSE     = "ELSE"
+	RETURN   = "RETURN"
 )
 
 // Type for monkey's token type
@@ -37,8 +51,13 @@ type Token struct {
 }
 
 var keywords = map[string]Type{
-	"fn":  FUNCTION,
-	"let": LET,
+	"fn":     FUNCTION,
+	"let":    LET,
+	"true":   TRUE,
+	"false":  FALSE,
+	"if":     IF,
+	"else":   ELSE,
+	"return": RETURN,
 }
 
 // LookupIdent returns ident's type
