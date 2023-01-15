@@ -1,10 +1,15 @@
 package ast
 
-import "github.com/lycheng/monkey-go/token"
+import (
+	"bytes"
+
+	"github.com/lycheng/monkey-go/token"
+)
 
 // Node for AST node interface
 type Node interface {
 	TokenLiteral() string
+	String() string
 }
 
 // Statement for AST statement interface
@@ -33,6 +38,15 @@ func (p *Program) TokenLiteral() string {
 	return ""
 }
 
+// String returns all statements' string value
+func (p *Program) String() string {
+	var out bytes.Buffer
+	for _, s := range p.Statements {
+		out.WriteString(s.String())
+	}
+	return out.String()
+}
+
 // Identifier for the ident in AST
 type Identifier struct {
 	Token token.Token // the token.IDENT token
@@ -44,15 +58,5 @@ func (i *Identifier) expressionNode() {}
 // TokenLiteral returns identifier's literal value
 func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
 
-// LetStatement for the statement let x = ...
-type LetStatement struct {
-	// Token for Let token
-	Token token.Token
-	Name  *Identifier
-	Value Expression
-}
-
-func (ls *LetStatement) statementNode() {}
-
-// TokenLiteral returns the let token literal value
-func (ls *LetStatement) TokenLiteral() string { return ls.Token.Literal }
+// String returns the identifier
+func (i *Identifier) String() string { return i.Value }

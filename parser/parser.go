@@ -9,6 +9,24 @@ import (
 	"github.com/lycheng/monkey-go/token"
 )
 
+// precedence
+const (
+	_ int = iota
+	LOWEST
+	EQUALS
+	LESSGRAEATER
+	SUM
+	PRODUCT
+	PREFIX
+	CALL
+)
+
+type (
+	prefixParseFn func() ast.Expression
+	// accept left side operator
+	infixParseFn func(ast.Expression) ast.Expression
+)
+
 // Parser uses Lexer to parse tokens
 type Parser struct {
 	l *lexer.Lexer
@@ -17,11 +35,17 @@ type Parser struct {
 
 	currToken token.Token
 	peekToken token.Token
+
+	prefixParseFns map[token.Type]prefixParseFn
+	infixParseFns  map[token.Type]infixParseFn
 }
 
 // New return new Parser with Lexer instance
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{l: l, errors: make([]string, 0)}
+
+	p.prefixParseFns = make(map[token.Type]prefixParseFn)
+	p.registerPrefix(token.IDENT, p.parseIdentifier)
 
 	// Read two times to set curr and peek token
 	p.nextToken()
@@ -38,8 +62,10 @@ func (p *Parser) parseStatement() (ast.Statement, error) {
 	switch p.currToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
+	case token.RETURN:
+		return p.parseReturnStatement()
 	default:
-		return nil, errors.New("Not a valid statement")
+		return p.parseExpressionStatement()
 	}
 }
 
@@ -54,6 +80,15 @@ func (p *Parser) parseLetStatement() (*ast.LetStatement, error) {
 	}
 
 	// TODO: handle assign expression
+	for !p.currTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+	return stmt, nil
+}
+
+func (p *Parser) parseReturnStatement() (*ast.ReturnStatement, error) {
+	stmt := &ast.ReturnStatement{Token: p.currToken}
+	p.nextToken()
 	for !p.currTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
@@ -92,7 +127,6 @@ func (p *Parser) ParseProgram() *ast.Program {
 	for p.currToken.Type != token.EOF {
 		if stmt, err := p.parseStatement(); err == nil {
 			program.Statements = append(program.Statements, stmt)
-			fmt.Println(program.Statements)
 		}
 		p.nextToken()
 	}
