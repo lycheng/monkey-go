@@ -11,8 +11,11 @@ import (
 
 func (p *Parser) registerFuncs() {
 	p.prefixParseFns = make(map[token.Type]prefixParseFn)
+
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
+	p.registerPrefix(token.BANG, p.parsePrefixExpression)
+	p.registerPrefix(token.MNIUS, p.parsePrefixExpression)
 }
 
 func (p *Parser) parseIdentifier() (ast.Expression, error) {

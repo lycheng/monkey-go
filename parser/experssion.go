@@ -31,7 +31,22 @@ func (p *Parser) parseExpressionStatement() (*ast.ExpressionStatement, error) {
 func (p *Parser) parseExpression(precedence int) (ast.Expression, error) {
 	prefix, ok := p.prefixParseFns[p.currToken.Type]
 	if !ok {
-		return nil, errors.New("parse func for " + string(p.currToken.Type) + " not found")
+		msg := "parse func for " + string(p.currToken.Type) + " not found"
+		return nil, errors.New(msg)
 	}
 	return prefix()
+}
+
+func (p *Parser) parsePrefixExpression() (ast.Expression, error) {
+	e := &ast.PrefixExpression{
+		Token:    p.currToken,
+		Operator: p.currToken.Literal,
+	}
+	p.nextToken()
+	exp, err := p.parseExpression(PREFIX)
+	if err != nil {
+		return nil, err
+	}
+	e.Right = exp
+	return e, nil
 }
