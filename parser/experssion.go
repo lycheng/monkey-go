@@ -33,6 +33,5 @@ func (p *Parser) parseExpression(precedence int) (ast.Expression, error) {
 	if !ok {
 		return nil, errors.New("parse func for " + string(p.currToken.Type) + " not found")
 	}
-	leftExp := prefix()
-	return leftExp, nil
+	return prefix()
 }

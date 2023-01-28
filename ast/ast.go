@@ -60,3 +60,17 @@ func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
 
 // String returns the identifier
 func (i *Identifier) String() string { return i.Value }
+
+// IntegerLiteral for the int value in AST
+type IntegerLiteral struct {
+	Token token.Token // the token.IDENT token
+	Value int64
+}
+
+func (il *IntegerLiteral) expressionNode() {}
+
+// TokenLiteral returns identifier's literal value
+func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
+
+// String returns the identifier
+func (il *IntegerLiteral) String() string { return il.Token.Literal }

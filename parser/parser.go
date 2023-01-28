@@ -22,9 +22,9 @@ const (
 )
 
 type (
-	prefixParseFn func() ast.Expression
+	prefixParseFn func() (ast.Expression, error)
 	// accept left side operator
-	infixParseFn func(ast.Expression) ast.Expression
+	infixParseFn func(ast.Expression) (ast.Expression, error)
 )
 
 // Parser uses Lexer to parse tokens
@@ -44,8 +44,7 @@ type Parser struct {
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{l: l, errors: make([]string, 0)}
 
-	p.prefixParseFns = make(map[token.Type]prefixParseFn)
-	p.registerPrefix(token.IDENT, p.parseIdentifier)
+	p.registerFuncs()
 
 	// Read two times to set curr and peek token
 	p.nextToken()
