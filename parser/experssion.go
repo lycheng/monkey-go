@@ -7,14 +7,6 @@ import (
 	"github.com/lycheng/monkey-go/token"
 )
 
-func (p *Parser) registerPrefix(tokenType token.Type, fn prefixParseFn) {
-	p.prefixParseFns[tokenType] = fn
-}
-
-func (p *Parser) registerInfix(tokenType token.Type, fn infixParseFn) {
-	p.infixParseFns[tokenType] = fn
-}
-
 func (p *Parser) parseExpressionStatement() (*ast.ExpressionStatement, error) {
 	stmt := &ast.ExpressionStatement{Token: p.currToken}
 	exp, err := p.parseExpression(LOWEST)
@@ -34,7 +26,25 @@ func (p *Parser) parseExpression(precedence int) (ast.Expression, error) {
 		msg := "parse func for " + string(p.currToken.Type) + " not found"
 		return nil, errors.New(msg)
 	}
-	return prefix()
+	exp, err := prefix()
+	if err != nil {
+		return nil, err
+	}
+
+	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
+		infix, ok := p.infixParseFns[p.peekToken.Type]
+		if !ok {
+			return exp, nil
+		}
+
+		p.nextToken()
+		infixExp, err := infix(exp)
+		if err != nil {
+			return nil, err
+		}
+		exp = infixExp
+	}
+	return exp, nil
 }
 
 func (p *Parser) parsePrefixExpression() (ast.Expression, error) {

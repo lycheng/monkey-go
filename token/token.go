@@ -12,7 +12,7 @@ const (
 	// Operators
 	ASSIGN   = "="
 	PLUS     = "+"
-	MNIUS    = "-"
+	MINUS    = "-"
 	BANG     = "!"
 	SLASH    = "/"
 	ASTERISK = "*"

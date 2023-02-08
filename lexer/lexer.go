@@ -47,7 +47,7 @@ func (l *Lexer) NextToken() token.Token {
 	case '+':
 		tk.Type = token.PLUS
 	case '-':
-		tk.Type = token.MNIUS
+		tk.Type = token.MINUS
 	case '*':
 		tk.Type = token.ASTERISK
 	case '/':
