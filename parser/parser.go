@@ -44,7 +44,7 @@ type Parser struct {
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{l: l, errors: make([]string, 0)}
 
-	p.registerFuncs()
+	p.registerParseFuncs()
 
 	// Read two times to set curr and peek token
 	p.nextToken()
