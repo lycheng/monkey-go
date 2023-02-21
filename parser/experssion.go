@@ -17,6 +17,7 @@ func (p *Parser) registerParseFuncs() {
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.TRUE, p.parseBoolean)
 	p.registerPrefix(token.FALSE, p.parseBoolean)
+	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 
 	p.infixParseFns = make(map[token.Type]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -128,4 +129,21 @@ func (p *Parser) parseInfixExpression(left ast.Expression) (ast.Expression, erro
 	}
 	expression.Right = exp
 	return expression, nil
+}
+
+func (p *Parser) parseGroupedExpression() (ast.Expression, error) {
+	p.nextToken()
+	exp, err := p.parseExpression(LOWEST)
+	if err != nil {
+		msg := fmt.Sprintf("could not parse %q as expression", p.currToken.Literal)
+		p.errors = append(p.errors, msg)
+		return nil, errors.New(msg)
+	}
+
+	if !p.expectPeek(token.RPAREN) {
+		msg := "could not match the right parenthesis"
+		p.errors = append(p.errors, msg)
+		return nil, errors.New(msg)
+	}
+	return exp, nil
 }
