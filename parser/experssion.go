@@ -15,6 +15,8 @@ func (p *Parser) registerParseFuncs() {
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
+	p.registerPrefix(token.TRUE, p.parseBoolean)
+	p.registerPrefix(token.FALSE, p.parseBoolean)
 
 	p.infixParseFns = make(map[token.Type]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -49,28 +51,28 @@ func (p *Parser) parseExpressionStatement() (*ast.ExpressionStatement, error) {
 }
 
 func (p *Parser) parseExpression(precedence int) (ast.Expression, error) {
-	prefix, ok := p.prefixParseFns[p.currToken.Type]
+	pfn, ok := p.prefixParseFns[p.currToken.Type]
 	if !ok {
 		msg := "parse func for " + string(p.currToken.Type) + " not found"
 		return nil, errors.New(msg)
 	}
-	exp, err := prefix()
+	exp, err := pfn()
 	if err != nil {
 		return nil, err
 	}
 
 	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
-		infix, ok := p.infixParseFns[p.peekToken.Type]
+		ifn, ok := p.infixParseFns[p.peekToken.Type]
 		if !ok {
 			return exp, nil
 		}
 
 		p.nextToken()
-		infixExp, err := infix(exp)
+		iExp, err := ifn(exp)
 		if err != nil {
 			return nil, err
 		}
-		exp = infixExp
+		exp = iExp
 	}
 	return exp, nil
 }
@@ -91,6 +93,10 @@ func (p *Parser) parsePrefixExpression() (ast.Expression, error) {
 
 func (p *Parser) parseIdentifier() (ast.Expression, error) {
 	return &ast.Identifier{Token: p.currToken, Value: p.currToken.Literal}, nil
+}
+
+func (p *Parser) parseBoolean() (ast.Expression, error) {
+	return &ast.Boolean{Token: p.currToken, Value: p.currTokenIs(token.TRUE)}, nil
 }
 
 func (p *Parser) parseIntegerLiteral() (ast.Expression, error) {
