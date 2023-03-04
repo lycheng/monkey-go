@@ -12,7 +12,7 @@ const (
 	// Operators
 	ASSIGN   = "="
 	PLUS     = "+"
-	MNIUS    = "-"
+	MINUS    = "-"
 	BANG     = "!"
 	SLASH    = "/"
 	ASTERISK = "*"
@@ -24,7 +24,7 @@ const (
 
 	// Delimiters
 	COMMA     = ","
-	SEMICOLON = "."
+	SEMICOLON = ";"
 
 	LPAREN = "("
 	RPAREN = ")"
