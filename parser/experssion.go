@@ -18,6 +18,7 @@ func (p *Parser) registerParseFuncs() {
 	p.registerPrefix(token.TRUE, p.parseBoolean)
 	p.registerPrefix(token.FALSE, p.parseBoolean)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
+	p.registerPrefix(token.IF, p.parseIfExpression)
 
 	p.infixParseFns = make(map[token.Type]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -146,4 +147,47 @@ func (p *Parser) parseGroupedExpression() (ast.Expression, error) {
 		return nil, errors.New(msg)
 	}
 	return exp, nil
+}
+
+func (p *Parser) parseBlockStatement() (*ast.BlockStatement, error) {
+	block := &ast.BlockStatement{Token: p.currToken}
+	block.Statements = []ast.Statement{}
+	p.nextToken()
+	for !p.currTokenIs(token.RBRACE) && !p.currTokenIs(token.EOF) {
+		stmt, err := p.parseStatement()
+		if err != nil {
+			return nil, err
+		}
+		block.Statements = append(block.Statements, stmt)
+		p.nextToken()
+	}
+	return block, nil
+}
+
+func (p *Parser) parseIfExpression() (ast.Expression, error) {
+	expr := &ast.IfExpression{Token: p.currToken}
+	if !p.expectPeek(token.LPAREN) {
+		return nil, errors.New("token ( not found for if expression")
+	}
+
+	p.nextToken()
+	ce, err := p.parseExpression(LOWEST)
+	if err != nil {
+		return nil, err
+	}
+	expr.Condition = ce
+
+	if !p.expectPeek(token.RPAREN) {
+		return nil, errors.New("token ) not found for if expression")
+	}
+
+	if !p.expectPeek(token.LBRACE) {
+		return nil, errors.New("token { not found for if expression")
+	}
+	bs, err := p.parseBlockStatement()
+	if err != nil {
+		return nil, err
+	}
+	expr.Consequence = bs
+	return expr, nil
 }
