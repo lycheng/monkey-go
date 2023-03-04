@@ -189,5 +189,19 @@ func (p *Parser) parseIfExpression() (ast.Expression, error) {
 		return nil, err
 	}
 	expr.Consequence = bs
+
+	if p.peekTokenIs(token.ELSE) {
+		p.nextToken()
+
+		if !p.expectPeek(token.LBRACE) {
+			return nil, errors.New("token { for found for else block")
+		}
+
+		al, err := p.parseBlockStatement()
+		if err != nil {
+			return nil, err
+		}
+		expr.Alternative = al
+	}
 	return expr, nil
 }
