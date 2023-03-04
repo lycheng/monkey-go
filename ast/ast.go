@@ -140,6 +140,7 @@ type IfExpression struct {
 func (ie *IfExpression) expressionNode() {}
 
 // TokenLiteral returns the if token
+// In Monkey language, the if-else-conditionals are expression. It will produce a value.
 func (ie *IfExpression) TokenLiteral() string { return ie.Token.Literal }
 func (ie *IfExpression) String() string {
 	var out bytes.Buffer
