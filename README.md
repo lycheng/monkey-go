@@ -8,5 +8,6 @@ Monkey language interpreter from [Writing an interpreter in Go](https://interpre
  2. [Chapter 1.4 - Extending Our Token Set And Lexer](https://github.com/lycheng/monkey-go/pull/1)
  3. [Chapter 1.5 - Start Of A REPL](https://github.com/lycheng/monkey-go/pull/2)
  4. [Chapter 2.0 - Parsing](https://github.com/lycheng/monkey-go/pull/3)
- 4. [Chapter 2.0 - Parsing(IF Expression)](https://github.com/lycheng/monkey-go/pull/4)
- 4. [Chapter 2.0 - Parsing(function)](https://github.com/lycheng/monkey-go/pull/5)
+ 5. [Chapter 2.0 - Parsing(IF Expression)](https://github.com/lycheng/monkey-go/pull/4)
+ 6. [Chapter 2.0 - Parsing(function)](https://github.com/lycheng/monkey-go/pull/5)
+ 7. [Chapter 2.0 - Parsing(call expression)](https://github.com/lycheng/monkey-go/pull/6)
