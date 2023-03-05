@@ -30,6 +30,7 @@ var precedences = map[token.Type]int{
 	token.MINUS:    SUM,
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
+	token.LPAREN:   CALL,
 }
 
 func (p *Parser) peekPrecedence() int {
@@ -67,6 +68,7 @@ func (p *Parser) registerParseFuncs() {
 	p.registerInfix(token.NOTEQ, p.parseInfixExpression)
 	p.registerInfix(token.LT, p.parseInfixExpression)
 	p.registerInfix(token.GT, p.parseInfixExpression)
+	p.registerInfix(token.LPAREN, p.parseCallExpression)
 }
 
 func (p *Parser) registerPrefix(tokenType token.Type, fn prefixParseFn) {
@@ -168,6 +170,45 @@ func (p *Parser) parseInfixExpression(left ast.Expression) (ast.Expression, erro
 	}
 	expression.Right = exp
 	return expression, nil
+}
+
+func (p *Parser) parseCallArguments() ([]ast.Expression, error) {
+	args := []ast.Expression{}
+	if p.peekTokenIs(token.RPAREN) {
+		p.nextToken()
+		return args, nil
+	}
+	p.nextToken()
+
+	arg, err := p.parseExpression(LOWEST)
+	if err != nil {
+		return nil, fmt.Errorf("Call argument %s is invalid", p.currToken.Literal)
+	}
+
+	args = append(args, arg)
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		arg, err := p.parseExpression(LOWEST)
+		if err != nil {
+			return nil, fmt.Errorf("Call argument %s is invalid", p.currToken.Literal)
+		}
+		args = append(args, arg)
+	}
+	if !p.expectPeek(token.RPAREN) {
+		return nil, errors.New("token ) for call expression not found")
+	}
+	return args, nil
+}
+
+func (p *Parser) parseCallExpression(function ast.Expression) (ast.Expression, error) {
+	exp := &ast.CallExpression{Token: p.currToken, Function: function}
+	args, err := p.parseCallArguments()
+	if err != nil {
+		return nil, err
+	}
+	exp.Arguments = args
+	return exp, nil
 }
 
 func (p *Parser) parseGroupedExpression() (ast.Expression, error) {
