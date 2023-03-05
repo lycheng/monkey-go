@@ -9,18 +9,6 @@ import (
 	"github.com/lycheng/monkey-go/token"
 )
 
-// precedence
-const (
-	_ int = iota
-	LOWEST
-	EQUALS
-	LESSGRAEATER
-	SUM
-	PRODUCT
-	PREFIX
-	CALL
-)
-
 type (
 	prefixParseFn func() (ast.Expression, error)
 	// accept left side operator
