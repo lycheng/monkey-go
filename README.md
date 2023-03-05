@@ -11,3 +11,4 @@ Monkey language interpreter from [Writing an interpreter in Go](https://interpre
  5. [Chapter 2.0 - Parsing(IF Expression)](https://github.com/lycheng/monkey-go/pull/4)
  6. [Chapter 2.0 - Parsing(function)](https://github.com/lycheng/monkey-go/pull/5)
  7. [Chapter 2.0 - Parsing(call expression)](https://github.com/lycheng/monkey-go/pull/6)
+ 7. [Github Actions](https://github.com/lycheng/monkey-go/pull/7)
