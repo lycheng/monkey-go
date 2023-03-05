@@ -97,7 +97,7 @@ func TestNextTokenWithIdentsAndKeywords(t *testing.T) {
 		{token.RPAREN, ")"},
 		{token.SEMICOLON, ";"},
 		{token.BANG, "!"},
-		{token.MNIUS, "-"},
+		{token.MINUS, "-"},
 		{token.SLASH, "/"},
 		{token.ASTERISK, "*"},
 		{token.INT, "5"},
