@@ -9,6 +9,43 @@ import (
 	"github.com/lycheng/monkey-go/token"
 )
 
+// precedence
+const (
+	_ int = iota
+	LOWEST
+	EQUALS
+	LESSGRAEATER
+	SUM
+	PRODUCT
+	PREFIX
+	CALL
+)
+
+var precedences = map[token.Type]int{
+	token.EQ:       EQUALS,
+	token.NOTEQ:    EQUALS,
+	token.LT:       LESSGRAEATER,
+	token.GT:       LESSGRAEATER,
+	token.PLUS:     SUM,
+	token.MINUS:    SUM,
+	token.SLASH:    PRODUCT,
+	token.ASTERISK: PRODUCT,
+}
+
+func (p *Parser) peekPrecedence() int {
+	if p, ok := precedences[p.peekToken.Type]; ok {
+		return p
+	}
+	return LOWEST
+}
+
+func (p *Parser) currPrecedence() int {
+	if p, ok := precedences[p.currToken.Type]; ok {
+		return p
+	}
+	return LOWEST
+}
+
 func (p *Parser) registerParseFuncs() {
 	p.prefixParseFns = make(map[token.Type]prefixParseFn)
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
@@ -19,6 +56,7 @@ func (p *Parser) registerParseFuncs() {
 	p.registerPrefix(token.FALSE, p.parseBoolean)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 	p.registerPrefix(token.IF, p.parseIfExpression)
+	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
 
 	p.infixParseFns = make(map[token.Type]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -204,4 +242,46 @@ func (p *Parser) parseIfExpression() (ast.Expression, error) {
 		expr.Alternative = al
 	}
 	return expr, nil
+}
+
+func (p *Parser) parseFunctionParameters() ([]*ast.Identifier, error) {
+	identifiers := []*ast.Identifier{}
+	if p.peekTokenIs(token.RPAREN) {
+		p.nextToken()
+		return identifiers, nil
+	}
+	p.nextToken()
+	ident := &ast.Identifier{Token: p.currToken, Value: p.currToken.Literal}
+	identifiers = append(identifiers, ident)
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		ident := &ast.Identifier{Token: p.currToken, Value: p.currToken.Literal}
+		identifiers = append(identifiers, ident)
+	}
+	if !p.expectPeek(token.RPAREN) {
+		return nil, errors.New("no ) token for function parameters")
+	}
+	return identifiers, nil
+}
+
+func (p *Parser) parseFunctionLiteral() (ast.Expression, error) {
+	fn := &ast.FunctionLiteral{Token: p.currToken}
+	if !p.expectPeek(token.LPAREN) {
+		return nil, errors.New("no ( token for function definition")
+	}
+	params, err := p.parseFunctionParameters()
+	if err != nil {
+		return nil, err
+	}
+	fn.Parameters = params
+	if !p.expectPeek(token.LBRACE) {
+		return nil, errors.New("no ) token for function definition")
+	}
+	body, err := p.parseBlockStatement()
+	if err != nil {
+		return nil, err
+	}
+	fn.Body = body
+	return fn, nil
 }
