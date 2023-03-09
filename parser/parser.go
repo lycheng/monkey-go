@@ -66,8 +66,14 @@ func (p *Parser) parseLetStatement() (*ast.LetStatement, error) {
 		return nil, errors.New("let statement has no assign token")
 	}
 
-	// TODO: handle assign expression
-	for !p.currTokenIs(token.SEMICOLON) {
+	p.nextToken()
+	val, err := p.parseExpression(LOWEST)
+	if err != nil {
+		return nil, errors.New("can not parse assign expression")
+	}
+	stmt.Value = val
+
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 	return stmt, nil
@@ -76,7 +82,14 @@ func (p *Parser) parseLetStatement() (*ast.LetStatement, error) {
 func (p *Parser) parseReturnStatement() (*ast.ReturnStatement, error) {
 	stmt := &ast.ReturnStatement{Token: p.currToken}
 	p.nextToken()
-	for !p.currTokenIs(token.SEMICOLON) {
+
+	expr, err := p.parseExpression(LOWEST)
+	if err != nil {
+		return nil, errors.New("can not parse return expression")
+	}
+	stmt.ReturnValue = expr
+
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 	return stmt, nil
