@@ -15,3 +15,4 @@ Monkey language interpreter from [Writing an interpreter in Go](https://interpre
  9. [Chapter 2.0 - Parsing(let and return expression)](https://github.com/lycheng/monkey-go/pull/8)
  10. [Chapter 2.0 - Parsing(REPL)](https://github.com/lycheng/monkey-go/pull/9)
  11. [Chapter 3.4 - Representing objects](https://github.com/lycheng/monkey-go/pull/10)
+ 12. [Chapter 3.5 - Evaluating Expressions](https://github.com/lycheng/monkey-go/pull/11)
