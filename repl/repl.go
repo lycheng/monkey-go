@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/lycheng/monkey-go/evaluator"
 	"github.com/lycheng/monkey-go/lexer"
 	"github.com/lycheng/monkey-go/parser"
 )
@@ -30,7 +31,14 @@ func Start(in io.Reader, out io.Writer) {
 			printParserErrors(out, p.Errors())
 			continue
 		}
-		io.WriteString(out, program.String())
+
+		evaluated, err := evaluator.Eval(program)
+		if err != nil {
+			io.WriteString(out, "eval error: "+err.Error()+"\n")
+			continue
+		}
+
+		io.WriteString(out, evaluated.Inspect())
 		io.WriteString(out, "\n")
 	}
 }
