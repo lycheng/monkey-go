@@ -4,9 +4,10 @@ import "fmt"
 
 // object types
 const (
-	INTEGER = "INTEGER"
-	BOOLEAN = "BOOLEAN"
-	NULL    = "NULL"
+	INTEGER     = "INTEGER"
+	BOOLEAN     = "BOOLEAN"
+	NULL        = "NULL"
+	RETURNVALUE = "RETURN_VALUE"
 )
 
 // Type for object type
@@ -48,3 +49,14 @@ func (n *Null) Type() Type { return NULL }
 
 // Inspect returns the null
 func (n *Null) Inspect() string { return "null" }
+
+// ReturnValue for return value
+type ReturnValue struct {
+	Value Object
+}
+
+// Type returns the type of ReturnValue
+func (rv *ReturnValue) Type() Type { return RETURNVALUE }
+
+// Inspect returns string of the value
+func (rv *ReturnValue) Inspect() string { return rv.Value.Inspect() }

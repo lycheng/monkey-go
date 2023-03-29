@@ -28,6 +28,12 @@ func Eval(node ast.Node) (object.Object, error) {
 		return &object.Integer{Value: node.Value}, nil
 	case *ast.Boolean:
 		return nativeBoolToBooleanObject(node.Value), nil
+	case *ast.ReturnStatement:
+		val, err := Eval(node.ReturnValue)
+		if err != nil {
+			return nil, err
+		}
+		return &object.ReturnValue{Value: val}, nil
 	case *ast.PrefixExpression:
 		{
 			right, err := Eval(node.Right)
@@ -51,13 +57,27 @@ func Eval(node ast.Node) (object.Object, error) {
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
 	case *ast.BlockStatement:
-		return evalStatements(node.Statements)
+		return evalBlockStatements(node)
 	case *ast.IfExpression:
 		return evalIfExpression(node)
 	case *ast.Program:
-		return evalStatements(node.Statements)
+		return evalProgram(node)
 	}
 	return nil, fmt.Errorf("Can not find the match object for %s", node.String())
+}
+
+func evalBlockStatements(block *ast.BlockStatement) (result object.Object, err error) {
+	for _, statement := range block.Statements {
+		result, err = Eval(statement)
+		if err != nil {
+			return nil, err
+		}
+
+		if result.Type() == object.RETURNVALUE {
+			return result, nil
+		}
+	}
+	return result, nil
 }
 
 func evalStatements(stmts []ast.Statement) (result object.Object, err error) {
@@ -65,6 +85,24 @@ func evalStatements(stmts []ast.Statement) (result object.Object, err error) {
 		result, err = Eval(statement)
 		if err != nil {
 			return nil, err
+		}
+
+		if rv, ok := result.(*object.ReturnValue); ok {
+			return rv.Value, nil
+		}
+	}
+	return result, nil
+}
+
+func evalProgram(program *ast.Program) (result object.Object, err error) {
+	for _, statement := range program.Statements {
+		result, err = Eval(statement)
+		if err != nil {
+			return nil, err
+		}
+
+		if rv, ok := result.(*object.ReturnValue); ok {
+			return rv.Value, nil
 		}
 	}
 	return result, nil
