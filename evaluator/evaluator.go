@@ -50,6 +50,10 @@ func Eval(node ast.Node) (object.Object, error) {
 		}
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
+	case *ast.BlockStatement:
+		return evalStatements(node.Statements)
+	case *ast.IfExpression:
+		return evalIfExpression(node)
 	case *ast.Program:
 		return evalStatements(node.Statements)
 	}
@@ -140,4 +144,30 @@ func evalIntegerInfixExpression(
 	default:
 		return nullObj
 	}
+}
+
+func isTruthy(obj object.Object) bool {
+	switch obj {
+	case nullObj:
+		return false
+	case trueObj:
+		return true
+	case falseObj:
+		return false
+	default:
+		return true
+	}
+}
+
+func evalIfExpression(ie *ast.IfExpression) (object.Object, error) {
+	condition, err := Eval(ie.Condition)
+	if err != nil {
+		return nil, err
+	}
+	if isTruthy(condition) {
+		return Eval(ie.Consequence)
+	} else if ie.Alternative != nil {
+		return Eval(ie.Alternative)
+	}
+	return nullObj, nil
 }
