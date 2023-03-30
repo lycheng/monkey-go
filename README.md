@@ -19,3 +19,4 @@ Monkey language interpreter from [Writing an interpreter in Go](https://interpre
  13. [Chapter 3.6 - Conditionals](https://github.com/lycheng/monkey-go/pull/12)
  14. [Chapter 3.7 - Return Statements](https://github.com/lycheng/monkey-go/pull/13)
  15. [Chapter 3.8 - Error Handling](https://github.com/lycheng/monkey-go/pull/14)
+ 16. [Chapter 3.9 - Bindings & The Environment](https://github.com/lycheng/monkey-go/pull/15)
