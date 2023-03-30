@@ -8,6 +8,7 @@ const (
 	BOOLEAN     = "BOOLEAN"
 	NULL        = "NULL"
 	RETURNVALUE = "RETURN_VALUE"
+	ERROR       = "ERROR"
 )
 
 // Type for object type
@@ -60,3 +61,14 @@ func (rv *ReturnValue) Type() Type { return RETURNVALUE }
 
 // Inspect returns string of the value
 func (rv *ReturnValue) Inspect() string { return rv.Value.Inspect() }
+
+// Error struct for eval errors
+type Error struct {
+	Message string
+}
+
+// Type returns the ERROR object
+func (e *Error) Type() Type { return ERROR }
+
+// Inspect returns the error message
+func (e *Error) Inspect() string { return "ERROR: " + e.Message }
