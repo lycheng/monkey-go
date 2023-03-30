@@ -35,12 +35,9 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		evaluated := evaluator.Eval(program, env)
-		switch rv := evaluated.(type) {
-		case *object.ReturnValue:
-		case *object.Error:
-			io.WriteString(out, rv.Inspect())
+		if evaluated != nil {
+			io.WriteString(out, evaluated.Inspect())
 			io.WriteString(out, "\n")
-		case *object.Null:
 		}
 	}
 }

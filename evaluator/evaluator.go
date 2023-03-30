@@ -82,7 +82,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.Program:
 		return evalProgram(node, env)
 	}
-	return nullObj
+	return nil
 }
 
 func evalBlockStatements(block *ast.BlockStatement, env *object.Environment) (result object.Object) {
