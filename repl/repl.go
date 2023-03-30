@@ -7,6 +7,7 @@ import (
 
 	"github.com/lycheng/monkey-go/evaluator"
 	"github.com/lycheng/monkey-go/lexer"
+	"github.com/lycheng/monkey-go/object"
 	"github.com/lycheng/monkey-go/parser"
 )
 
@@ -17,6 +18,7 @@ const (
 // Start to read input from in and print the parsed result to out
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	env := object.NewEnvironment()
 	for {
 		fmt.Printf(prompt)
 		scanned := scanner.Scan()
@@ -32,9 +34,11 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		evaluated := evaluator.Eval(program)
-		io.WriteString(out, evaluated.Inspect())
-		io.WriteString(out, "\n")
+		evaluated := evaluator.Eval(program, env)
+		if evaluated != nil {
+			io.WriteString(out, evaluated.Inspect())
+			io.WriteString(out, "\n")
+		}
 	}
 }
 
