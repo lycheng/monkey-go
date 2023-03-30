@@ -30,15 +30,11 @@ func TestEvalIntegerExpression(t *testing.T) {
 		{"(5 + 10 * 2 + 15 / 3) * 2 + -10", 50},
 	}
 	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
-		if err != nil {
-			t.Errorf("Eval get error: %s", err)
-			break
-		}
+		evaluated := testEval(tt.input)
 		testIntegerObject(t, evaluated, tt.expected)
 	}
 }
-func testEval(input string) (object.Object, error) {
+func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
 	program := p.ParseProgram()
@@ -85,11 +81,7 @@ func TestEvalBooleanExpression(t *testing.T) {
 		{"(1 > 2) == false", true},
 	}
 	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
-		if err != nil {
-			t.Errorf("Eval get error: %s", err)
-			break
-		}
+		evaluated := testEval(tt.input)
 		testBooleanObject(t, evaluated, tt.expected)
 	}
 }
@@ -120,11 +112,7 @@ func TestBangOperator(t *testing.T) {
 		{"!!5", true},
 	}
 	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
-		if err != nil {
-			t.Errorf("Eval get error: %s", err)
-			break
-		}
+		evaluated := testEval(tt.input)
 		testBooleanObject(t, evaluated, tt.expected)
 	}
 }
@@ -143,11 +131,7 @@ func TestIfElseExpressions(t *testing.T) {
 		{"if (1 < 2) { 10 } else { 20 }", 10},
 	}
 	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
-		if err != nil {
-			t.Errorf("Eval get error: %s", err)
-			break
-		}
+		evaluated := testEval(tt.input)
 		integer, ok := tt.expected.(int)
 		if ok {
 			testIntegerObject(t, evaluated, int64(integer))
@@ -184,11 +168,7 @@ return 1;
 }`, 10},
 	}
 	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
-		if err != nil {
-			t.Errorf("Eval get error: %s", err)
-			break
-		}
+		evaluated := testEval(tt.input)
 		testIntegerObject(t, evaluated, tt.expected)
 	}
 }
@@ -233,11 +213,7 @@ return 1;
 		},
 	}
 	for _, tt := range tests {
-		evaluated, err := testEval(tt.input)
-		if err != nil {
-			t.Errorf("Eval get error: %s", err)
-			break
-		}
+		evaluated := testEval(tt.input)
 		errObj, ok := evaluated.(*object.Error)
 		if !ok {
 			t.Errorf("no error object returned. got=%T(%+v)",

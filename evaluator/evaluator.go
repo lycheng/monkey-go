@@ -32,50 +32,38 @@ func isError(obj object.Object) bool {
 }
 
 // Eval returns the object of the AST node
-func Eval(node ast.Node) (object.Object, error) {
+func Eval(node ast.Node) object.Object {
 
 	switch node := node.(type) {
 	case *ast.IntegerLiteral:
-		return &object.Integer{Value: node.Value}, nil
+		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
-		return nativeBoolToBooleanObject(node.Value), nil
+		return nativeBoolToBooleanObject(node.Value)
 	case *ast.ReturnStatement:
-		val, err := Eval(node.ReturnValue)
-		if err != nil {
-			return nil, err
-		}
+		val := Eval(node.ReturnValue)
 		if isError(val) {
-			return val, nil
+			return val
 		}
-		return &object.ReturnValue{Value: val}, nil
+		return &object.ReturnValue{Value: val}
 	case *ast.PrefixExpression:
 		{
-			right, err := Eval(node.Right)
-			if err != nil {
-				return nil, err
-			}
+			right := Eval(node.Right)
 			if isError(right) {
-				return right, nil
+				return right
 			}
 			return evalPrefixExpression(node.Operator, right)
 		}
 	case *ast.InfixExpression:
 		{
-			left, err := Eval(node.Left)
-			if err != nil {
-				return nil, err
-			}
+			left := Eval(node.Left)
 			if isError(left) {
-				return left, nil
+				return left
 			}
-			right, err := Eval(node.Right)
-			if err != nil {
-				return nil, err
-			}
+			right := Eval(node.Right)
 			if isError(right) {
-				return right, nil
+				return right
 			}
-			return evalInfixExpression(node.Operator, left, right), nil
+			return evalInfixExpression(node.Operator, left, right)
 		}
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
@@ -86,62 +74,56 @@ func Eval(node ast.Node) (object.Object, error) {
 	case *ast.Program:
 		return evalProgram(node)
 	}
-	return nil, fmt.Errorf("Can not find the match object for %s", node.String())
+	return newError("Can not find the match object for %s", node.String())
 }
 
-func evalBlockStatements(block *ast.BlockStatement) (result object.Object, err error) {
+func evalBlockStatements(block *ast.BlockStatement) (result object.Object) {
 	for _, statement := range block.Statements {
-		result, err = Eval(statement)
-		if err != nil {
-			return nil, err
-		}
+		result = Eval(statement)
 
 		if result.Type() == object.RETURNVALUE || result.Type() == object.ERROR {
-			return result, nil
+			return result
 		}
 	}
-	return result, nil
+	return result
 }
 
-func evalStatements(stmts []ast.Statement) (result object.Object, err error) {
+func evalStatements(stmts []ast.Statement) (result object.Object) {
 	for _, statement := range stmts {
-		result, err = Eval(statement)
-		if err != nil {
-			return nil, err
-		}
-
-		if rv, ok := result.(*object.ReturnValue); ok {
-			return rv.Value, nil
-		}
-	}
-	return result, nil
-}
-
-func evalProgram(program *ast.Program) (result object.Object, err error) {
-	for _, statement := range program.Statements {
-		result, err = Eval(statement)
-		if err != nil {
-			return nil, err
-		}
+		result = Eval(statement)
 
 		switch rv := result.(type) {
 		case *object.ReturnValue:
-			return rv.Value, nil
+			return rv.Value
 		case *object.Error:
-			return rv, nil
+			return rv
 		}
 	}
-	return result, nil
+	return result
 }
 
-func evalPrefixExpression(operator string, right object.Object) (object.Object, error) {
+func evalProgram(program *ast.Program) (result object.Object) {
+	for _, statement := range program.Statements {
+		result = Eval(statement)
+
+		switch rv := result.(type) {
+		case *object.ReturnValue:
+			return rv.Value
+		case *object.Error:
+			return rv
+		}
+	}
+	return result
+}
+
+func evalPrefixExpression(operator string, right object.Object) object.Object {
 	switch operator {
 	case "!":
-		return evalBangOperatorExpression(right), nil
+		return evalBangOperatorExpression(right)
 	case "-":
-		return evalMinusPrefixOperatorExpression(right), nil
+		return evalMinusPrefixOperatorExpression(right)
 	default:
-		return nullObj, nil
+		return nullObj
 	}
 }
 
@@ -225,18 +207,15 @@ func isTruthy(obj object.Object) bool {
 	}
 }
 
-func evalIfExpression(ie *ast.IfExpression) (object.Object, error) {
-	condition, err := Eval(ie.Condition)
+func evalIfExpression(ie *ast.IfExpression) object.Object {
+	condition := Eval(ie.Condition)
 	if isError(condition) {
-		return condition, nil
-	}
-	if err != nil {
-		return nil, err
+		return condition
 	}
 	if isTruthy(condition) {
 		return Eval(ie.Consequence)
 	} else if ie.Alternative != nil {
 		return Eval(ie.Alternative)
 	}
-	return nullObj, nil
+	return nullObj
 }
