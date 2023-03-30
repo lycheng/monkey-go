@@ -32,12 +32,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		evaluated, err := evaluator.Eval(program)
-		if err != nil {
-			io.WriteString(out, "eval error: "+err.Error()+"\n")
-			continue
-		}
-
+		evaluated := evaluator.Eval(program)
 		io.WriteString(out, evaluated.Inspect())
 		io.WriteString(out, "\n")
 	}
