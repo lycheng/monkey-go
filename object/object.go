@@ -1,6 +1,12 @@
 package object
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+	"strings"
+
+	"github.com/lycheng/monkey-go/ast"
+)
 
 // object types
 const (
@@ -9,6 +15,7 @@ const (
 	NULL        = "NULL"
 	RETURNVALUE = "RETURN_VALUE"
 	ERROR       = "ERROR"
+	FUNCTION    = "FUNCTION"
 )
 
 // Type for object type
@@ -72,3 +79,29 @@ func (e *Error) Type() Type { return ERROR }
 
 // Inspect returns the error message
 func (e *Error) Inspect() string { return "ERROR: " + e.Message }
+
+// Function object
+type Function struct {
+	Parameters []*ast.Identifier
+	Body       *ast.BlockStatement
+	Env        *Environment
+}
+
+// Type returns FUNCTION
+func (f *Function) Type() Type { return FUNCTION }
+
+// Inspect returns function definition as string
+func (f *Function) Inspect() string {
+	var out bytes.Buffer
+	params := []string{}
+	for _, p := range f.Parameters {
+		params = append(params, p.String())
+	}
+	out.WriteString("fn")
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(") {\n")
+	out.WriteString(f.Body.String())
+	out.WriteString("\n}")
+	return out.String()
+}
