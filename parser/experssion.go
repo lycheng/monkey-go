@@ -58,6 +58,7 @@ func (p *Parser) registerParseFuncs() {
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 	p.registerPrefix(token.IF, p.parseIfExpression)
 	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
+	p.registerPrefix(token.STRING, p.parseStringLiteral)
 
 	p.infixParseFns = make(map[token.Type]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -139,6 +140,10 @@ func (p *Parser) parseIdentifier() (ast.Expression, error) {
 
 func (p *Parser) parseBoolean() (ast.Expression, error) {
 	return &ast.Boolean{Token: p.currToken, Value: p.currTokenIs(token.TRUE)}, nil
+}
+
+func (p *Parser) parseStringLiteral() (ast.Expression, error) {
+	return &ast.StringLiteral{Token: p.currToken, Value: p.currToken.Literal}, nil
 }
 
 func (p *Parser) parseIntegerLiteral() (ast.Expression, error) {

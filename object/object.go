@@ -12,6 +12,7 @@ import (
 const (
 	INTEGER     = "INTEGER"
 	BOOLEAN     = "BOOLEAN"
+	STRING      = "STRING"
 	NULL        = "NULL"
 	RETURNVALUE = "RETURN_VALUE"
 	ERROR       = "ERROR"
@@ -48,6 +49,17 @@ func (b *Boolean) Type() Type { return BOOLEAN }
 
 // Inspect returns the boolean value of Boolean
 func (b *Boolean) Inspect() string { return fmt.Sprintf("%t", b.Value) }
+
+// String for String object
+type String struct {
+	Value string
+}
+
+// Type returns STRING
+func (s *String) Type() Type { return STRING }
+
+// Inspect returns string value
+func (s *String) Inspect() string { return s.Value }
 
 // Null for null type
 type Null struct{}
