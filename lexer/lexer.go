@@ -64,6 +64,9 @@ func (l *Lexer) NextToken() token.Token {
 		} else {
 			tk.Type = token.BANG
 		}
+	case '"':
+		tk.Type = token.STRING
+		tk.Literal = l.readString()
 	case 0:
 		tk.Literal = ""
 		tk.Type = token.EOF
@@ -82,6 +85,17 @@ func (l *Lexer) NextToken() token.Token {
 	}
 	l.readChar()
 	return tk
+}
+
+func (l *Lexer) readString() string {
+	i := l.currPos + 1
+	for {
+		l.readChar()
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
+	}
+	return l.input[i:l.currPos]
 }
 
 func (l *Lexer) readChar() {
