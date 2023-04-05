@@ -17,6 +17,7 @@ const (
 	RETURNVALUE = "RETURN_VALUE"
 	ERROR       = "ERROR"
 	FUNCTION    = "FUNCTION"
+	BUILTIN     = "BUILTIN"
 )
 
 // Type for object type
@@ -117,3 +118,17 @@ func (f *Function) Inspect() string {
 	out.WriteString("\n}")
 	return out.String()
 }
+
+// BuiltinFunction for Built-In function definition
+type BuiltinFunction func(args ...Object) Object
+
+// Builtin for Built-In function object
+type Builtin struct {
+	Fn BuiltinFunction
+}
+
+// Type returns BUILTIN
+func (b *Builtin) Type() Type { return BUILTIN }
+
+// Inspect returns built in message
+func (b *Builtin) Inspect() string { return "Built-In function" }
