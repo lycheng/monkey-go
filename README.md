@@ -32,7 +32,7 @@ Monkey language interpreter from [Writing an interpreter in Go](https://interpre
 ### Chapter 4
 
 * [Chapter 4.2 - Strings](https://github.com/lycheng/monkey-go/pull/17)
-* [Chapter 4.3 - Built-In Functions](https://github.com/lycheng/monkey-go/pull/18)
+* [Chapter 4.3 & 4.4 - Array and Built-In Functions](https://github.com/lycheng/monkey-go/pull/18)
 
 ### Others
 
