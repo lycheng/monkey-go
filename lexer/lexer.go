@@ -42,6 +42,10 @@ func (l *Lexer) NextToken() token.Token {
 		tk.Type = token.LBRACE
 	case '}':
 		tk.Type = token.RBRACE
+	case '[':
+		tk.Type = token.LBRACKET
+	case ']':
+		tk.Type = token.RBRACKET
 	case ',':
 		tk.Type = token.COMMA
 	case '+':

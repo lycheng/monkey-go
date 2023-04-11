@@ -59,6 +59,7 @@ func (p *Parser) registerParseFuncs() {
 	p.registerPrefix(token.IF, p.parseIfExpression)
 	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
 	p.registerPrefix(token.STRING, p.parseStringLiteral)
+	p.registerPrefix(token.LBRACKET, p.parseArrayLiteral)
 
 	p.infixParseFns = make(map[token.Type]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -177,38 +178,9 @@ func (p *Parser) parseInfixExpression(left ast.Expression) (ast.Expression, erro
 	return expression, nil
 }
 
-func (p *Parser) parseCallArguments() ([]ast.Expression, error) {
-	args := []ast.Expression{}
-	if p.peekTokenIs(token.RPAREN) {
-		p.nextToken()
-		return args, nil
-	}
-	p.nextToken()
-
-	arg, err := p.parseExpression(LOWEST)
-	if err != nil {
-		return nil, fmt.Errorf("Call argument %s is invalid", p.currToken.Literal)
-	}
-
-	args = append(args, arg)
-	for p.peekTokenIs(token.COMMA) {
-		p.nextToken()
-		p.nextToken()
-		arg, err := p.parseExpression(LOWEST)
-		if err != nil {
-			return nil, fmt.Errorf("Call argument %s is invalid", p.currToken.Literal)
-		}
-		args = append(args, arg)
-	}
-	if !p.expectPeek(token.RPAREN) {
-		return nil, errors.New("token ) for call expression not found")
-	}
-	return args, nil
-}
-
 func (p *Parser) parseCallExpression(function ast.Expression) (ast.Expression, error) {
 	exp := &ast.CallExpression{Token: p.currToken, Function: function}
-	args, err := p.parseCallArguments()
+	args, err := p.parseExpressionList(token.RPAREN)
 	if err != nil {
 		return nil, err
 	}
@@ -330,4 +302,41 @@ func (p *Parser) parseFunctionLiteral() (ast.Expression, error) {
 	}
 	fn.Body = body
 	return fn, nil
+}
+
+func (p *Parser) parseArrayLiteral() (ast.Expression, error) {
+	array := &ast.ArrayLiteral{Token: p.currToken}
+	elements, err := p.parseExpressionList(token.RBRACKET)
+	if err != nil {
+		return nil, err
+	}
+	array.Elements = elements
+	return array, nil
+}
+
+func (p *Parser) parseExpressionList(end token.Type) ([]ast.Expression, error) {
+	list := []ast.Expression{}
+	if p.peekTokenIs(end) {
+		p.nextToken()
+		return list, nil
+	}
+	p.nextToken()
+	expr, err := p.parseExpression(LOWEST)
+	if err != nil {
+		return nil, err
+	}
+	list = append(list, expr)
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		expr, err = p.parseExpression(LOWEST)
+		if err != nil {
+			return nil, err
+		}
+		list = append(list, expr)
+	}
+	if !p.expectPeek(end) {
+		return nil, fmt.Errorf("Expect to get %s but get %s", end, p.peekToken.Literal)
+	}
+	return list, nil
 }
