@@ -28,7 +28,11 @@ Monkey language interpreter from [Writing an interpreter in Go](https://interpre
 * [Chapter 3.8 - Error Handling](https://github.com/lycheng/monkey-go/pull/14)
 * [Chapter 3.9 - Bindings & The Environment](https://github.com/lycheng/monkey-go/pull/15)
 * [Chapter 3.10 - Functions](https://github.com/lycheng/monkey-go/pull/16)
+
+### Chapter 4
+
 * [Chapter 4.2 - Strings](https://github.com/lycheng/monkey-go/pull/17)
+* [Chapter 4.3 - Built-In Functions](https://github.com/lycheng/monkey-go/pull/18)
 
 ### Others
 
