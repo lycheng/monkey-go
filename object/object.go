@@ -18,6 +18,7 @@ const (
 	ERROR       = "ERROR"
 	FUNCTION    = "FUNCTION"
 	BUILTIN     = "BUILTIN"
+	ARRAY       = "ARRAY"
 )
 
 // Type for object type
@@ -132,3 +133,24 @@ func (b *Builtin) Type() Type { return BUILTIN }
 
 // Inspect returns built in message
 func (b *Builtin) Inspect() string { return "Built-In function" }
+
+// Array object
+type Array struct {
+	Elements []Object
+}
+
+// Type returns ARRAY
+func (ao *Array) Type() Type { return ARRAY }
+
+// Inspect returns array literal value
+func (ao *Array) Inspect() string {
+	var out bytes.Buffer
+	elements := []string{}
+	for _, e := range ao.Elements {
+		elements = append(elements, e.Inspect())
+	}
+	out.WriteString("[")
+	out.WriteString(strings.Join(elements, ", "))
+	out.WriteString("]")
+	return out.String()
+}
