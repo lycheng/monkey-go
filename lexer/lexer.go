@@ -34,6 +34,8 @@ func (l *Lexer) NextToken() token.Token {
 		}
 	case ';':
 		tk.Type = token.SEMICOLON
+	case ':':
+		tk.Type = token.COLON
 	case '(':
 		tk.Type = token.LPAREN
 	case ')':

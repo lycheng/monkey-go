@@ -3,6 +3,7 @@ package object
 import (
 	"bytes"
 	"fmt"
+	"hash/fnv"
 	"strings"
 
 	"github.com/lycheng/monkey-go/ast"
@@ -19,6 +20,7 @@ const (
 	FUNCTION    = "FUNCTION"
 	BUILTIN     = "BUILTIN"
 	ARRAY       = "ARRAY"
+	HASH        = "HASH"
 )
 
 // Type for object type
@@ -28,6 +30,11 @@ type Type string
 type Object interface {
 	Type() Type
 	Inspect() string
+}
+
+// Hashable for objects that can be used as key of hash object
+type Hashable interface {
+	HashKey() HashKey
 }
 
 // Integer for int object
@@ -41,6 +48,11 @@ func (i *Integer) Inspect() string { return fmt.Sprintf("%d", i.Value) }
 // Type returns the object type
 func (i *Integer) Type() Type { return INTEGER }
 
+// HashKey for Integer type as hash type's key
+func (i *Integer) HashKey() HashKey {
+	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
+}
+
 // Boolean for boolean object
 type Boolean struct {
 	Value bool
@@ -52,6 +64,17 @@ func (b *Boolean) Type() Type { return BOOLEAN }
 // Inspect returns the boolean value of Boolean
 func (b *Boolean) Inspect() string { return fmt.Sprintf("%t", b.Value) }
 
+// HashKey for Boolean type as hash type's key
+func (b *Boolean) HashKey() HashKey {
+	var val uint64
+	if b.Value {
+		val = 1
+	} else {
+		val = 0
+	}
+	return HashKey{Type: b.Type(), Value: val}
+}
+
 // String for String object
 type String struct {
 	Value string
@@ -62,6 +85,13 @@ func (s *String) Type() Type { return STRING }
 
 // Inspect returns string value
 func (s *String) Inspect() string { return s.Value }
+
+// HashKey for string type as hash type's key
+func (s *String) HashKey() HashKey {
+	h := fnv.New64a()
+	h.Write([]byte(s.Value))
+	return HashKey{Type: s.Type(), Value: h.Sum64()}
+}
 
 // Null for null type
 type Null struct{}
@@ -152,5 +182,39 @@ func (ao *Array) Inspect() string {
 	out.WriteString("[")
 	out.WriteString(strings.Join(elements, ", "))
 	out.WriteString("]")
+	return out.String()
+}
+
+// HashKey for hash type's key
+type HashKey struct {
+	Type  Type
+	Value uint64
+}
+
+// HashPair for hash type's value
+type HashPair struct {
+	Key Object
+	Val Object
+}
+
+// Hash for hash type
+type Hash struct {
+	Pairs map[HashKey]HashPair
+}
+
+// Type returns ARRAY
+func (h *Hash) Type() Type { return HASH }
+
+// Inspect returns hash type literal value
+func (h *Hash) Inspect() string {
+	var out bytes.Buffer
+	pairs := []string{}
+	for _, pair := range h.Pairs {
+		pairs = append(pairs, fmt.Sprintf("%s: %s",
+			pair.Key.Inspect(), pair.Val.Inspect()))
+	}
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
 	return out.String()
 }
