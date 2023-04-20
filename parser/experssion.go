@@ -62,6 +62,7 @@ func (p *Parser) registerParseFuncs() {
 	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
 	p.registerPrefix(token.STRING, p.parseStringLiteral)
 	p.registerPrefix(token.LBRACKET, p.parseArrayLiteral)
+	p.registerPrefix(token.LBRACE, p.parseHashLiteral)
 
 	p.infixParseFns = make(map[token.Type]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -356,4 +357,32 @@ func (p *Parser) parseIndexExpression(left ast.Expression) (ast.Expression, erro
 		return nil, fmt.Errorf("Expect to get ] but get %s", p.peekToken.Literal)
 	}
 	return exp, nil
+}
+
+func (p *Parser) parseHashLiteral() (ast.Expression, error) {
+	hash := &ast.HashLiteral{Token: p.currToken}
+	hash.Pairs = make(map[ast.Expression]ast.Expression)
+	for !p.peekTokenIs(token.RBRACE) {
+		p.nextToken()
+		key, err := p.parseExpression(LOWEST)
+		if err != nil {
+			return nil, err
+		}
+		if !p.expectPeek(token.COLON) {
+			return nil, fmt.Errorf("It should be : for hash type, but got %s", p.peekToken.Literal)
+		}
+		p.nextToken()
+		value, err := p.parseExpression(LOWEST)
+		if err != nil {
+			return nil, err
+		}
+		hash.Pairs[key] = value
+		if !p.peekTokenIs(token.RBRACE) && !p.expectPeek(token.COMMA) {
+			return nil, fmt.Errorf("It should be } or , for hash type, but got %s", p.peekToken.Literal)
+		}
+	}
+	if !p.expectPeek(token.RBRACE) {
+		return nil, fmt.Errorf("It should be } for hash type, but got %s", p.peekToken.Literal)
+	}
+	return hash, nil
 }
